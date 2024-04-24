@@ -3,6 +3,7 @@ import { useState } from "react";
 import NewProject from "./components/NewProject";
 import NoProjectSelected from "./components/NoProjectSelected";
 import SideBar from "./components/SideBar";
+import SelectedProject from "./components/SelectedProject";
 
 function App() {
   const [projectState, setProjectState] = useState({
@@ -28,6 +29,16 @@ function App() {
     })
   }
 
+  function handleSelectProject(id) {
+    setProjectState((prev) => { 
+      return { 
+        ...prev, 
+        selectedProjectID: id
+      }
+    })
+  }
+
+
   function handleAddProject(projectData) {
     setProjectState(prev => {
       const projectID = Math.random()
@@ -37,15 +48,25 @@ function App() {
       }
       return {
         ...prev,
-        selectedProjectID: undefined,
+        selectedProjectID: projectID,
         projects: [...prev.projects, newProject]
       }
     })
   }
 
-  console.log('saved state:', projectState)
+  function handleDeleteProject(){ 
+    setProjectState((prev) => { 
+      return { 
+        ...prev, 
+        selectedProjectID: undefined, 
+        projects: prev.projects.filter((project) => project.id !== prev.selectedProjectID )
+      }
+    })
+  }
 
-  let content
+  const selectedProject = projectState.projects.find(project => project.id === projectState.selectedProjectID)
+
+  let content = <SelectedProject project={selectedProject} onDelete={handleDeleteProject} />
 
   if (projectState.selectedProjectID === null) {
     content = <NewProject onAdd={handleAddProject} onCancel={handleCancelAddProject} />
@@ -58,6 +79,7 @@ function App() {
       <SideBar
         onStartAddProject={handleStartAddProject}
         projects={projectState.projects}
+        onSelectProject={handleSelectProject}
       />
       {content}
     </main>
